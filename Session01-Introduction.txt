@@ -1,0 +1,45 @@
+AWS - Amazon web Services
+-------------------------
+It is comperhensive cloud computing platform offered by amazon.
+
+1. what is cloud?
+-> The cloud is a vast online storage space where people and businesses store their files and applications, accessible from anywhere 
+   with an internet connection. The cloud also offers services, such as computing power, databases, networking, and software applications.
+   ex: email, google workspace, microsoft365, dropbox, googledrive, aws, microsoft azure etc.
+   
+2. what is data centers?
+-> A place/facility where all the servers/hardware, networking equipment, and storage systems are stored and all the configurations for 
+   the servers used to collect, process, and store data.
+   eg: Netmagic, Sify Technologies, ESDS, Nexlogic, Yotta Infrastructure, GPX India, Web Werks India, STT GDC India and HPE etc.
+  
+3. what is virtulization?
+-> it is a technology where we will solve the problem of wasting a resources on a server, that creates virtual representations of 
+   computer hardware, software, or resources, allowing multiple virtual instances to run on a single physical machine.
+   eg: if we have a 1 server with a 100gb and 100cpu instead of deploying the 1 application in the actual server, using virtilization 
+       creating a virtual servers on top of the actual server and in each virtual server we deploy 1 application. In this case instead
+	   of buying 15-20 servers, we just buy 1 server required amount of configuration and we can deploy 15-20 applications.
+	   applications for creating vm's - Scale Computing HyperCore, VMware, Hyper-V
+
+4. what is private and public cloud?
+-> private cloud, computing services offered either over the Internet or a private internal network and only within a organisation 
+   instead of the general public.
+   eg: healthcare, finance and the government or public sector.
+   
+   public cloud, where resources are offered by a third-party provider via the internet and shared by organizations and individuals who 
+   want to use or purchase them.
+   eg: Amazon Web Services(AWS), Microsoft Azure, IBM, and Digital Ocean
+   
+5. why public cloud is so popular?
+-> its cost-effectiveness, scalability, flexibility and to get rid of the entire maintenance overhead and we have to ensure server work 
+   properly without security breaching so the private cloud is very complicated. 
+
+6. How AWS is better than others?
+-> apart from many other cloud providers, aws is the first pioneers comes in the market they have started the cloud concept and currently 
+   they plenty of services and other solutions. it have best ui interface, facilities and good customer support. they holds a large 
+   market share that menas they have plenty of job openings, aws is the right platform to start the journey in cloud.
+
+7. Are people going back from cloud?   
+-> moving from public cloud to private cloud is called cloud repatriation and very less people will use this facility due to private 
+   security, cost optimization, regulatory requirements and confidential purpose. 43% of IT leaders found that moving applications and 
+   data to the cloud was more expensive than expected. startup and mid-level companies cannot afford for data centers & start the journey 
+   with cloud not in just of cost due to entire setup and maintainence.

@@ -1,0 +1,135 @@
+Virtual private cloud (VPC)
+---------------------------
+1. what is virtual private cloud?
+-> VPC is a virtual network environment that allows you to launch AWS resources in a logically isolated section of the AWS Cloud.
+
+2. How do we define the size of a VPC?
+-> we define the size of the address by IP-address range, where we can launch AWS resources (like EC2 instances) in a customizable 
+   virtual network.
+   
+   Think of it like creating our own private data center within AWS, we can control:
+   * IP address ranges - /16 means 65,536 IP addresses (from 10.0.0.0 to 10.0.255.255).
+   * Subnets (private/public) - Divide vpc into a segmented piece of a larger network into smaller sections.
+   * Route tables - Rules that determine where network traffic is directed.
+   * Internet gateways (to connect to the internet) - Allows communication between instances in our VPC and the internet.
+   * NAT gateways (for private subnet internet access) - Lets private subnet instances access the internet without being exposed directly.
+   * Firewalls (via security groups and network ACLs) - 	Virtual firewalls attached to Instances & subnets.
+
+3. what is subnet?
+-> subnet is a, vpc might have 1 address range but we can split them to multiple different IP-address range for multiple projects. 
+   subnet mask is used to divide an IP address into two parts. One part identifies the host (computer), the other part identifies the 
+   network to which it belongs.
+   ex: 192.168.1.0/24 - which creates 256 IP addresses for projects and 5 are reserved for aws.
+   
+4. what is route table? 
+-> It is a data structure that helps to routers to find the best path for forwarding the data packets to their destination. It is 
+   essential for directing/dictates network traffic flows within and outside the vpc. defines how request goto the application.
+   
+5. what is gateway?
+-> A gateway is a network device or node that acts as a entry and exit points for data between 2/more different networks especially they 
+   use different network protocols. It enables the resources in our public/private subnets to connect to the Internet. Every subnet gets a 
+   default gateway address and a broadcast address. private subnet uses NAT(Network Address Translation) gateway & public subnet uses 
+   Internet gateway(IGW).
+  
+6. what is NAT gateway? and it's uses.
+-> If the request access to the private subnet, It is a bad practice to expose the applications/server IP-address to the Internet.If we are
+   trying to access the web application then we dont want to expose our private subnet/server IP-address to the web application. To avoid this 
+   we need to do masking of IP-address this is called NAT gateway. It will mask/change the IP-address of server with the public IP-address
+   with the load balancer is called SNAT or either with the router is called NAT gateway.
+  
+7. creating subnets in AWS?
+-> In AWS have public and private subnets, we can create only either private/ public subnets or both without any equal balance.
+   * Private IPs are used for communication within a VPC and not accessible directly from the internet, unless we configure a NAT 
+   Gateway or VPN to allow traffic. eg: EC2
+   * Public IPs are accessible from the internet, If an EC2 instance can be accessed from the internet through public IP address or an 
+   Elastic IP (EIP).
+   
+8. what is firewall and why it needs?
+-> It is a security system that monitors Incoming & outgoing network traffic based on pre-defined network rules, In this firewall 
+   created for instances and load balancers. Load Balancer's security group allows HTTP/HTTPS from anywhere. EC2 instance's security 
+   group allows traffic only from the Load Balancer.
+   
+9. VPC CIDR Calculation (IP Address Calculation)?
+-> when we create a vpc , we define CIDR(classless Inter-Domain routing) block, which means a range of IP-address.
+   Ex: A VPC with CIDR block 10.0.0.0/16
+       /16 means 65,536 IP addresses (from 10.0.0.0 to 10.0.255.255).
+	   1 Byte = 8 Bits - 256 128 64 32 16 8 4 2 = 2^8 which means 256 combinations.
+	   2 Byte = 16 Bits = 2^16 which means 65536 combinations. /16 means 65,536 IP addresses (from 10.0.0.0 to 10.0.255.255) for host & network
+    [8 bits].[8 bits].[8 bits].[8 bits] = 32bits divided into 4 parts called octets.
+	Example: 192.168.1.1 - Each number between dots can go from 0 to 255.
+	In CIDR, 192.168.1.0/24 
+	        The first 24 bits are network part (fixed) - 192.168.1 - [8 bits].[8 bits].[8 bits] = 24bits
+			The last 8 bits are for hosts (can change) - 0 to 255 - [8 bits] = 8bits, Last number → changes from 0 to 255 to give 
+			different IP addresses.
+	192.168.1.0 - Network address
+	192.168.1.1	First host (usable) to 192.168.1.254 Last host (usable)
+	192.168.1.255 - Broadcast address
+	
+	Subnet-Size		How Many IPs	Real-world Example
+		/16			65,536 IPs		Renting a football stadium for a small birthday party (wasted space)
+		/24			256 IPs			Renting a community hall — just right for a small to medium party
+		/28			16 IPs			Renting a tiny studio apartment for a big party (people will not fit)
+		
+	/16 means : 16 bits for network + 16 bits for host.
+	Host bits = 16 bits, So 2¹⁶ = 65,536 IP addresses.
+	In AWS, we will get 65,531 IP addresses.
+	
+	/23 means : 24 bits for network + 8 bits for host left (because 32 - 23 = 9)
+	Host bits = 9 bits, So 2^9 = 512 IP addresses.
+	In AWS, we will get 507 IP addresses.
+	
+	/24 means : 24 bits for network + 8 bits for host left (because 32 - 24 = 8)
+	Host bits = 8 bits, So 2^8 = 256 IP addresses.
+	In AWS, we will get 251 IP addresses.
+	
+	/28 means : 28 bits for network part + Only 4 bits left for host part (because 32 - 28 = 4)
+	4 bits ➔ 2⁴ = 16 IP addresses. 1 is network address & 1 is broadcast address (reserved) = 14 usable IP-addresses for real devices 
+	(in normal networking).
+	In AWS, they reserve 5 addresses, so we get 11 usable IPs.
+	
+	Summary of Reserved IPs in AWS:
+    -------------------------------
+	Reserved IP 	Address	Purpose
+	First IP (.0)	Network address (identifies subnet)
+					For example, in a /24 subnet (10.0.0.0/24), the first IP address, 10.0.0.0, is the network address. This is used to 
+					represent the entire subnet and cannot be assigned to a device.
+	Second IP (.1)	VPC Router (responsible for routing)
+					For example, in 10.0.0.0/24, the second IP, 10.0.0.1, is reserved for the VPC router. It is responsible for routing 
+					traffic to other subnets and external resources (like the internet, if you have an Internet Gateway).
+	Third IP (.2)	DNS Server (resolves domain names)
+					For example, in 10.0.0.0/24, 10.0.0.2 is reserved for AWS DNS services. This helps your instances resolve domain 
+					names (like example.com) into IP addresses.
+	Fourth IP (.3)	Reserved for future use
+					Currently, this IP address doesn’t serve a defined purpose, but AWS may use it for other internal functions as the 
+					platform evolves.
+	Last IP (.255)	Broadcast address (broadcasts to all hosts in subnet)
+					For example, in 10.0.0.0/24, the last IP address, 10.0.0.255, is the broadcast address. It is used for sending 
+					messages to all hosts in the subnet.
+
+vpc works in AWS
+-----------------
+There is an Internet Gateway attached to the VPC. Through the Internet Gateway, traffic enters the public subnet.
+In the public subnet, the request first goes to the Load Balancer, which is associated with the public subnet.
+The Load Balancer then forwards the request to a Target Group, which contains the application instances.
+These application instances usually reside in private subnets (for security).
+To ensure that traffic from the Load Balancer can reach the instances in the private subnet, we configure a Route Table.
+The Route Table defines how traffic is routed within the VPC and ensures the Load Balancer knows how to send traffic to the application 
+servers.
+
+Virtual Private Cloud Map
+--------------------------
+Application EC2 instances
+       |
+Private Subnet
+       |
+Security Group(Firewall)
+       |
+Route Table 
+       |
+Target Group
+       |
+Application/Elastic Load Balancer (ALB)
+       |
+Public Subnets
+       |
+Internet Gateway (IGW)

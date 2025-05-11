@@ -1,0 +1,193 @@
+AWS Project - VPC with a public-private subnet in production QA
+----------------------------------------------------------------
+1. Create a VPC that you can use for servers in a production environment
+-> TO Improve resiliency, we can deploy the servers in 2 availability zones, by using an autoscaling group and an application load 
+   balancer. For additional security, we deploy the servers ina private subnets. The servers receive request through the load balancer.
+   The servers can connect to the Internet by using a NAT(Network Address Translation) gateway. To Improve the resiliency, you deploy 
+   the NAT gateway in both availability zones.
+   
+2. Overview on VPC
+-> The VPC has public & private subnets in 2 availability zones. Each public subnet contains a NAT gateway and a load balancer node.
+   The servers run in the private subnets, are launched & terminated by an auto scaling group, & receive the traffic from the load balancer.
+   The servers can connect to the Internet gateway by using the NAT gateway.
+   
+3. Why we need 2 availability zones?
+-> If one goes down still another would be serving the traffic for us.
+
+4. can we create a multiple private subnets in a single public subnet?
+-> Yes, we can create multiple private subnets within a single AWS VPC, even if that VPC also includes a public subnet. The key is to 
+   define separate, non-overlapping CIDR blocks for each subnet within the overall VPC's CIDR block. Each subnet can then be configured 
+   with its own route table, security group, and other networking parameters. 
+   
+5. What NAT gateway does?
+-> If the application want to access the data from the Internet then NAT gateway masks the application IP address with the public 
+   IP-address of the NAT gateway when it's send a request to web-server for security purpose.
+   
+6. What is Auto scaling group?
+-> when we deploy our application in 2 availability zones, Instead of creating the 2 EC2 Instances we just telling to auto scaling group
+   to create minimum of 2 replicas & Incase the application receives more request & if 2 servers are not enough to accept the Incoming 
+   traffic, If 2 servers can accept 100 request suppose we get 200 requests at that time auto scaling group creates 4 servers 
+   according to the requests it will create the servers and scale-up.
+
+7. What is load-balancer?
+-> The name itself says that It will balance the load/requests by sending to requests to the instances/servers. 
+
+8. What is Bastion host or Jump server?
+-> Instances are created in a private subnet, Instances don't have public IP address & we can't do ssh into instances directly because 
+   to keep them secure we will not create any piblic IP address for them. But we can create a Bastion host/jump host in the public subnet
+   trough that we can connect to the EC2 instances. It is a proper mechanism to connect to the private subnet Instances/servers.
+   
+9. VPC Creation/configurations?
+-> we have 2 options create VPC only means we need to configure subnets, network, route tables ourselves and VPC & more means AWS will
+   take care of everything and it creates for us.
+   
+   while creating VPC & more, it creates 2 public & 2 private subnets divided into 2 different locations along with the subnets it has 
+   attached to the route table, it is to route the traffic within the subnets and that has a destination and Internet gateway. It has 
+   1 public & 2 private route tables bcuz the 2 private subnets are from different locations. the private route tables attached to the 
+   end-point s3 bucket/NAT gateway & the public route table which is attached to the IGW(Internet gateway).
+   
+   we need to provide name tag for VPC  
+   configuring the size of our VPC using CIDR notation. 10.0.0.0/16 means 65536IPs 
+   the number of availability zones require 2 is enough 
+   the number of public & private subnets are totally 4 
+   NAT gateway 1 per availability zones, To mask the private subnets
+   VPC endpoint s3 bucket/None
+   create VPC to generate the configurations. It creates buc=nch of resources for us.
+   while creating VPC If you had an Issue with elastic IP just release those elastic IPs & we can retry to create VPC.
+   
+10. What is Elastic IP address?
+-> It can be call it as static IP-address bcuz it never changes, the IP-address will remains same for Instances.
+
+11. Why we need launch template in auto-scaling?
+-> Bcuz we can use that template across multiple auto-scaling groups or this template acts like a reference for auto-scaling behave.
+
+VPC complete project to setup & launch/release
+-----------------------------------------------
+
+VPC setup
+----------
+- VPC & more
+- set name tag(aws-prod-example)
+- IPv4 CIDR block(10.0.0.0/16)
+- NO IPv6 CIDR block
+- Number of availability zones(2)
+- Number of public subnets(2)
+- Number of private subnets(2)
+- NAT gateway(1 per AZ)
+- VPC endpoints(None)
+- create VPC & view
+Note: If Elastic IPs are reached & relese some Elastic IPs then we can create VPC
+
+Auto-scaling setup
+------------------
+Note: At first we need to setup template
+Template setup
+--------------
+- search for EC2 and find Auto-scaling option & select 
+- create auto-scaling by using a launch template
+- click on the launch template & create
+- launch template name(aws-prod-example)
+- template description(poc for app deploy in aws private subnet)
+- AMI(ubuntu)
+- Instance type(t2.micro)
+- key pair(aws_login)
+- create new SG group - SG name(aws-prod-example) - description(allow ssh access) - select the created VPC(aws-prod-example-vpc)
+- set Inbound security rules (ssh, 22, anywhere & custom TCP, 8000, anywhere)
+- click on launch template
+
+- auto scaling group name(aws-prod-example)
+- select the launch template which we are created(aws-prod-example)
+- select the VPC which we are created(aws-prod-example-vpc)
+- select the availability zones(select the private subnets)
+- auto scaling group(desired capacity-2, minimum capacity-1, maximum capacity-4)
+Note:when the traffic increases it uses the maximum capacity Instances.
+- create/launch auto-scaling group
+- check the Instances, is it created/not in 2 different location
+Note:for private subnet instances doesn't have public IP-address to keep secure, we can connect by using bastion/jumper host.
+
+Steps to create bastion/jumper host
+-----------------------------------
+- launch Instance
+- name(bastion host)
+- AMI(ubuntu)
+- Instance type(t2.micro)
+- key-pair(aws_login)
+Note:make sure bastion/jumper host created in the same VPC
+- network settings(aws-prod-example-vpc)
+- subnet(1a public IP-address)
+- auto-assign public address(Enable)
+Note:add a security group which has a access to ssh
+- create SG(allow ssh, anywhere)
+- launch the Instance
+
+Note:we need to copy the key-value pair to the bastion host bcuz without key-value pair doesn't connect to the private subnet address 
+from the bastion host for that we need to do scp cmd.
+
+- scp -i C:/Users/anjan/Downloads/aws_login.pem C:/Users/anjan/Downloads/aws_login.pem ubuntu@54.242.252.58:/home/ubuntu
+
+Install the application inside the servers/private subnet 
+---------------------------------------------------------
+- login to the bastion host(ssh -i aws_login.pem ubuntu@<public-IP-address>)
+- to confirm aws_login.pem available or not(ls)
+Note:If .pem file is not available we are not able to login to the private server from the bastion/jumper host
+- ssh -i aws_login.pem ubuntu@<1a-private-IP-address>
+- confirm the login private-IP-address
+- vi index.html
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My first aws project to demonstrate apps in private subnet</h1>
+
+</body>
+</html>
+
+- python3 -m http.server 8000	#to host the web-server
+
+Note:Permissions 0644 for 'aws_login.pem' are too open.(chmod 400 aws_login.pem)
+
+Steps to create target groups
+------------------------------
+- listeners & routing(create a target group)
+- choose target group(EC2 Instances)
+- protocol & port(HTTP, 8000)
+- target group name(aws-prod-example)
+- VPC(aws-prod-example-vpc)
+- select both the instances
+- Include as pending below
+- create target group
+
+Steps to create load-balancer
+------------------------------
+- create load-balancer
+- select application-load-balancer
+- create
+- load balancer name(aws-prod-example)
+- Network(select the aws-prod-example-vpc)
+- Mappings(pickup both the availability zones with the public subnets)
+- SG(select the security group from the list/create new one)
+Note:SG shoud be allowing the traffic from both ssh and port 8000 
+- listeners & routing(select the target group - aws-prod-example)
+- create the load-balancer
+Note:In selected secirity group need add inbound rules(type HTTP,port 80, source anywhere)
+- copy the DNS name and load it in the web-browser
+#otput:My first aws project to demonstrate apps in private subnet 
+Note:Target group only forwarding the traffic to healthiest Instance 
+ 
+Assessment:Install the application inside the 1b-private-IP-address server/private subnet same as 1a-private-IP-address
+------------------------------------------------------------------------------------------------------------------------
+- ssh -i aws_login.pem ubuntu@<1b-private-IP-address>
+- confirm the login private-IP-address
+- vi index.html
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My first aws project to demonstrate apps in private subnet</h1>
+
+</body>
+</html>
+
+- python3 -m http.server 8000

@@ -1,0 +1,65 @@
+EC2-Deep Dive(Elastic compute cloud)
+------------------------------------
+Elastic - elastic is a pre-fix to some of the services in aws, services can be elastic in nature scaled-up/ scaled-down i,e. we can 
+          increase the resources decreases the resources or use the resources in anywhere.
+compute - we are requesting to aws to provide computing instance/virtual server which is a combination of cpu, RAM and disks.
+cloud - the use of virtualized computing resources that are accessed over the internet, rather than being physically located on your 
+        own hardware.
+		
+1. what is ec2?
+-> we are requesting to aws the public cloud provider to give you a virtual machine/server which is elastic in nature and this term in 
+   general is called as a compute.
+   
+2. why we need to use ec2?
+-> Instead of using aws vm's, if we use own physical server by creating on our own vm's on top of hyper-visor then we need to maintain 
+   timely upgrade the versions, verify the security Issues, server connectivity and many other issues for all the created vm's. single 
+   devops engineer will not able to maintain all these areas, so to get rid of this maintainence we are moving to the public cloud 
+   Infrastructure it will take care of everything and also cost reduces compare to using our own Infrastructure. During the shutdown 
+   period no need to maintain the servers in aws.
+   
+3. ec2 instance types?
+-> a. general purpose - instances offer a balance of computing, memory, and networking resources. eg: e-commerce website hosting
+   b. compute optimized - instances are designed for compute-intensive applications that require high-performance processing. 
+						  eg: research institution running simulations on a climate model. 
+   c. memory optimized - instances provide a high amount of memory to handle large datasets and memory-intensive workloads. 
+						 eg: social media platform storing and processing user data in memory for real-time analysis. 
+   d. storage optimized - instances offer high storage capacity and I/O performance for workloads that require substantial storage. 
+						  eg: company storing customer transaction data in a high-capacity data warehouse for analysis. 
+   e. accelarated compute - instances utilize hardware accelerators, such as GPUs or FPGAs, to boost the processing power of specific tasks. 
+							eg: gaming company running a server for online multiplayer games that require high graphics processing. 
+
+4. what is regions in aws?
+-> There are multiple regions in aws, suppose if we are working for european client they want the data as close to them because it's very
+   sensitive then we can use the regions which are close to them it reduces the latency. aws have data centers in multiple places and 
+   those are called as availability zones.
+
+5. steps to create and login to instance in aws?
+-> select a service EC2 -> click on instance -> launch instance -> name of the web-server -> application & os images -> Instance type ->
+   key-pairs -> security groups in network settings. -> configuring storage -> number of instances -> launch instance -> created
+-> key pair is a authentication to the instance which generates private and public key, instance have public key & we will have private 
+   key using the private key we can login to that instance. do not share the private keys with anyone.
+   key pair name(name) -> key pair type (RSA) -> private key file format(.pem) -> create key pair
+-> login to the instance by using putty/mobaxterm ssh -i <private-key.pem> ubuntu@<public-IP-address>.
+-> we need to change the permission of the .pem file because the password is too sensitive chmod 600 <private-key.pem>
+-> whenever we login to the instance we need to update the packages -> sudo apt update 
+-> Before we running any applications we need to download the requirements. for jenkins we need to download java packages
+-> after installing running the public-IP-address of instance with the default port number http://<IP-address>:8080
+-> then we need to enter the passwd which is in mentioned path after it will login successful.  
+-> sudo su -
+-> apt update
+-> apt install openjdk-21-jdk    
+#we need to install the supported version if u want to know the supported versions - tail -n 50 /var/log/syslog
+-> java --version
+-> sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian/jenkins.io-2023.key
+echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins
+-> systemctl status jenkins
+-> http://<public-IP-address>:8080
+-> we need to to set the inbound traffic rules - Custom TCP - 8080 - AnywhereIPV4 - save it
+-> along with that we need to add ICMP V4 because need to pinig the public ip-address get back the packets details without any loss
+   All ICMP-IPV4 - save it
+-> ping <public-ip>

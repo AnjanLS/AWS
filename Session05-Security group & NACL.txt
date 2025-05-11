@@ -1,0 +1,89 @@
+SG (Security Group) and NACL (Network access control list)
+----------------------------------------------------------
+-> In aws SG and NACL both are network security mechanisms to control traffic but they differ in how & where they apply, It is always a 
+   shared responsibility between devops and aws admins and it acts as a last point of security in aws.
+
+1. what is security group?
+-> security group basically serves at the instance level, whenever we create a aws account it will give a default vpc without vpc aws 
+   will not deal with anything and also we can create a custom vpc, In aws security is a shared responsibility by default will not allow
+   anything to our instance directly. By configuring security groups by allowing all traffic we can configure anything/apps in a instance.
+   Port 8080 is commonly used as an alternative to port 80 for HTTP (web) traffic. and we can open multipe other ports but some kind of
+   unwanted traffic that can flow to our ec2 instance and reach the application. we need to do by allowing only specified traffic into
+   our ec2 instance and into our application this is done by security group in aws.
+	| Protocol | Default Port |
+	| -------- | ------------ |
+	| HTTP     | 80           |
+	| HTTPS    | 443          |
+	| FTP      | 21           |
+	| SSH      | 22           |
+	| SMTP     | 25           |
+	| DNS      | 53           |
+
+2 Functions in security groups?
+-> In aws, we need to manage the both traffics Inbound and Outbound in security groups & assiging by default. By default it will allow 
+   all the outbound traffic except for port 25 because it is a mailing service & Default it will not allow any Inbound traffic by 
+   configuring SG Inbound traffic rules & we can add the port numbers/IP address which has to be accepted. 
+   Inbound traffic - User trying to access apps in the instance, Traffic coming into your system or network from the outside.
+   Outbound traffic - By using application trying to accesss some 3rd party apps, Traffic leaving your system or network to an external 
+                      destination.
+
+3. what is NACL?
+-> NACL is applied at the subnet level, where Instance owner by allowing all the traffic in sg group but as a devops engineer/administrators 
+   will have one more layer where at the subnet level, each of the subnet level we can define what kind of traffic do we want to deny. If
+   it is applied in the subnet level it is by-default applied to all the instances within the subnet. It's a additional layer of security.
+   Generally use in organisational network traffic like Falcon, cisco, cloudflare etc. It will allow only specific things which is 
+   configured in the NACL Instead of applying configurations for each & every instance also we can use NACL for automation at subnet for
+   all instances. NACL goes in the ascending order even if we block the port in the the 2nd rule and allowing it in 1st rule we can 
+   access the IP address.  
+   
+-> SG is configured at the Instances & it is only for allowing the configured traffics.
+-> NACL is configured at the private subnets & it is for both allowing and denying the configured traffics.
+-> we can use nither SG nor NACL or both for traffic restrictions. 
+
+Steps to create VPC
+--------------------
+- Create VPC
+- VPC and more
+- name tag (demo)
+- IPv4 CIDR block (10.0.0.0/16)65536IPs
+- Number of availability zones (2)
+- Number of public subnets (2)
+- Number of private subnets (2)
+- VPC endpoints (s3 gateway)
+- create VPC
+- view VPC to display the details
+
+Steps to create Instance
+------------------------
+- launch Instance
+- name an Instance (demo-application)
+- select OS Image (ubuntu)
+- select the Instance Type (t2.micro)
+- create a key-pair (aws_login)
+- In network setting choose created vpc (demo)
+- select the public subnet (public)
+- enable to auto assign public IP
+- create security group firewall default (later changes made to understand in deep dive)
+- launch an Instance
+
+SSH to connect the Instance from gitlab and sg configurations/NACL configurations
+----------------------------------------------------------------------------------
+- ssh -i aws_login.pem ubuntu@18.208.248.233
+- sudo apt update (to update all the packages in ubuntu)
+- python3 --version (to check python is present or not)
+- python3 -m http.server 9090 (to run python on a web server with a specific port)
+- It will allow only allocated ports
+- It's shows error because inbound rules 9090 port is not allocated in sg we have to allocate to run on web-server
+- after allocating port 9090 a new rule in sg
+- run the public ip in web-server to see http://18.208.248.233:9090 
+- it displays hidden files in a directory
+- select the vpc which we are created under NACL and look out the inbound rules 
+- we can also restrct the traffic rules from the subnet side 
+- http://18.208.248.233:9090/ if i add a new rule with rule number 90 and port 9090 by denying 
+- it will deny the port to access on web-server
+- the main thing is all the things which depends on the rule number which we set on NACL side bcuz
+- in 1st rule we allocate port 9090 in rule number 100 and 110 we deny the port 9090 it still works bcuz it will work acc to rule-number
+- so, http://18.208.248.233:9090/ still works in web-server from NACL traffic goes to the route table & it forward the request to the ec2
+- user -> Internet Gateway -> Public Subnet -> NACL -> Route Table -> Ec2 Instance 
+- we will get a 200 respose from bash which means the request is successful.
+- Inbound traffic rules in NACL * means last rule, we can restrict the port for all instances in NACL instead of each Instance. 
