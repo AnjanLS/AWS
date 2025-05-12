@@ -190,4 +190,4 @@ Assessment:Install the application inside the 1b-private-IP-address server/priva
 </body>
 </html>
 
-- python3 -m http.server 8000
+- python3 -m http.server 8000	#To Initiate the application in web-server with a specific port.
