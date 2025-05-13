@@ -4,7 +4,8 @@ AWS-S3(simple-storage-service)
 Note: most of the times we store the Info in the physical drives for the personal usage but the organisations we will deal with 
       databases, dumps, continous backups, application logs, dashboards, charts, Info for the things like .csv, excel all of these 
 	  things will store in the cloud. S3 is globally accessible using the HTTPS protocol. The secret behind the AWS success is(11 9's)
-	  99.99999999999% is reliable.
+	  99.99999999999% is reliable. without bucket versioning If we upload the same file within the same folder it will replace the file.
+	  Even If someone have access to s3 bucket from the IAM rules even though we can restrict them by using s3 permissions.
 
 1. what is Amazon S3?
 -> Simple Storage Service is a scalable, Highly available, performance, cost-effective and secure cloud storage service provided by 
@@ -127,8 +128,8 @@ Note: most of the times we store the Info in the physical drives for the persona
    Recovering deleted objects: If an object is accidentally deleted, you can often recover it using versioning or S3 event notifications.
    Additionally, consider enabling Cross-Region Replication (CRR) for disaster recovery scenarios.
    
-restrict-access-to-owner.json
-------------------------------
+restrict-access-to-owner.json - if other persons have s3 full access also we can restrict everyone except owner
+---------------------------------------------------------------------------------------------------------------
 {
   "Version": "2012-10-17",
   "Id": "RestrictBucketToIAMUsersOnly",
@@ -151,8 +152,8 @@ restrict-access-to-owner.json
   ]
 }
 
-static-website-basic.json
---------------------------
+static-website-basic.json - for hosting a website from s3 buckets
+------------------------------------------------------------------
 {
     "Version": "2012-10-17",
     "Statement": [
