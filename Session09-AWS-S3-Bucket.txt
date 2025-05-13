@@ -1,12 +1,18 @@
-AWS-S3
-------
+AWS-S3(simple-storage-service)
+------------------------------
+
+Note: most of the times we store the Info in the physical drives for the personal usage but the organisations we will deal with 
+      databases, dumps, continous backups, application logs, dashboards, charts, Info for the things like .csv, excel all of these 
+	  things will store in the cloud. S3 is globally accessible using the HTTPS protocol. The secret behind the AWS success is(11 9's)
+	  99.99999999999% is reliable.
+
 1. what is Amazon S3?
--> Simple Storage Service is a scalable and secure cloud storage service provided by Amazon Web Services (AWS). It allows you to store 
-   and retrieve any amount of data from anywhere on the web.
+-> Simple Storage Service is a scalable, Highly available, performance, cost-effective and secure cloud storage service provided by 
+   Amazon Web Services (AWS). It allows you to store and retrieve any amount of data from anywhere on the web.
    
 2. What are S3 buckets?
 -> S3 buckets are containers for storing objects (files) in Amazon S3. Each bucket has a unique name globally across all of AWS. You can
-   think of an S3 bucket as a top-level folder that holds your data.
+   think of an S3 bucket as a top-level folder that holds your data like pictures, videos, documents and files etc.
 
 3. Why use S3 buckets?
 -> S3 buckets provide a reliable and highly scalable storage solution for various use cases. They are commonly used for backup and 
